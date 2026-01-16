@@ -28,9 +28,13 @@ lr_model.fit(X_train, y_train)
 # Make predictions
 y_pred = lr_model.predict(X_test)
 
-# Inverse normalization to get real humidity values
-y_test_denorm = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
-y_pred_denorm = scaler.inverse_transform(y_pred.reshape(-1, 1)).flatten()
+# Fill in temperature dimension (fill the second column with 0, which does not affect the humidity inverse normalization result)
+y_test_2d = np.hstack([y_test.reshape(-1, 1), np.zeros_like(y_test.reshape(-1, 1))])
+y_pred_2d = np.hstack([y_pred.reshape(-1, 1), np.zeros_like(y_pred.reshape(-1, 1))])
+
+# Only take the first column (humidity) after inverse normalization
+y_test_denorm = scaler.inverse_transform(y_test_2d)[:, 0].flatten()
+y_pred_denorm = scaler.inverse_transform(y_pred_2d)[:, 0].flatten()
 
 # Model evaluation
 mse = mean_squared_error(y_test_denorm, y_pred_denorm)
