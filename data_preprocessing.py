@@ -12,11 +12,9 @@ data['temperature_denoised'] = data['temperature'].rolling(window=3, center=True
 # Fill missing values (caused by rolling window)
 data = data.fillna(method='ffill').fillna(method='bfill')
 
-# 2. Normalization: Scale to [0, 1] range
 scaler = MinMaxScaler(feature_range=(0, 1))
-data[['humidity_norm', 'temperature_norm']] = scaler.fit_transform(
-    data[['humidity_denoised', 'temperature_denoised']]
-)
+data['humidity_norm'] = scaler.fit_transform(data[['humidity_denoised']])
+data['temperature_norm'] = MinMaxScaler(feature_range=(0,1)).fit_transform(data[['temperature_denoised']])
 
 # Save preprocessed data and scaler
 data.to_csv('preprocessed_data.csv', index=False)
