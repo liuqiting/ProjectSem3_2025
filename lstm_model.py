@@ -47,9 +47,13 @@ history = model.fit(
 # Make predictions
 y_pred = model.predict(X_test)
 
-# Inverse normalization
-y_test_denorm = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
-y_pred_denorm = scaler.inverse_transform(y_pred.reshape(-1, 1)).flatten()
+# Fill in temperature dimension (fill the second column with 0, no impact on humidity inverse normalization)
+y_test_2d = np.hstack([y_test.reshape(-1, 1), np.zeros_like(y_test.reshape(-1, 1))])
+y_pred_2d = np.hstack([y_pred.reshape(-1, 1), np.zeros_like(y_pred.reshape(-1, 1))])
+
+# Only take the first column (humidity) after inverse normalization
+y_test_denorm = scaler.inverse_transform(y_test_2d)[:, 0].flatten()
+y_pred_denorm = scaler.inverse_transform(y_pred_2d)[:, 0].flatten()
 
 # Model evaluation
 mse = mean_squared_error(y_test_denorm, y_pred_denorm)
